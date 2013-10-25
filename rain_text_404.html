@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+   <canvas id="c"></canvas>
+</body>
+</html>
+<style type="text/css">
+    *
+    {
+        margin: 0;
+        padding: 0;
+    }
+
+    body
+    {
+        display: block;
+    }
+    canvas
+    {
+        display: block;
+    }
+</style>
+<script type="text/javascript">
+
+    var font_size = 10;
+
+    function  characters_color_matrix(characters)
+    {
+        var r, g, b, gray;
+
+        //原图描绘
+
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+
+
+        canvas.width = window.innerWidth/font_size;
+        canvas.height = window.innerHeight/font_size;
+        var character_size = Math.floor(canvas.width*0.8/characters.length);
+        ctx.font = character_size + "px Calibri";
+
+        ctx.fillStyle = "white";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = "black";
+        ctx.textBaseline = "top";
+        ctx.font = character_size + "px Calibri";
+        var x = Math.floor((canvas.width-ctx.measureText(characters).width)/2);
+        var y = Math.floor((canvas.height-character_size)/2);
+        ctx.fillText(characters, x, y);
+
+        var pixels = ctx.getImageData(0 ,0, canvas.width, canvas.height);
+        var color_data = pixels.data;
+        var color_matrix = new Array(canvas.height);
+        for(var i=0; i<canvas.height; i++)
+            color_matrix[i] = new Array(canvas.width);
+        for(var i= 0, row= 0, col=0; i<color_data.length; i+=4, col++)
+        {
+            r = color_data[i];
+            g = color_data[i+1];
+            b = color_data[i+2];
+
+            gray = r*0.2126 + g*0.7152 + b*0.0722;
+
+            color_matrix[row][col] = gray<250 ? 1:0;
+
+            if(0!=i && 0==i/4%canvas.width)
+            {
+                row++;
+                col = -1;
+            }
+        }
+        return color_matrix;
+    }
+
+
+    var show_text = "404";
+
+    var matrix = characters_color_matrix(show_text);
+
+    var characters = show_text.split("");
+
+    var canvas = document.getElementById("c");
+
+
+    var ctx = canvas.getContext("2d");
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    var columns = canvas.width/font_size;
+    var drops = [];
+    for(var i=0; i<columns; i++)
+    {
+        drops[i] = 0;
+    }
+
+    ctx.fillStyle = "rgba(0,0,0,0.05)";
+
+    function draw()
+    {
+        ctx.fillStyle = "rgba(0,0,0,0.05)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        for(var i=0; i<columns; i++)
+        {
+            ctx.fillStyle = "#0F0";
+
+            try
+            {
+                if(matrix[drops[i]][i])
+                    ctx.fillStyle = "#F00";
+            }
+            catch(e)
+            {
+            }
+            var text = characters[Math.floor(Math.random()*characters.length)];
+            ctx.fillText(text, i*font_size, drops[i]*font_size);
+
+            if(drops[i]*font_size>canvas.height && Math.random()>0.975)
+                drops[i] = 0;
+            drops[i]++;
+        }
+    }
+
+    window.onresize = function()
+    {
+        matrix = characters_color_matrix(show_text);
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        columns = canvas.width/font_size;
+        drops = [];
+        for(var i=0; i<columns; i++)
+        {
+            drops[i] = 0;
+        }
+    }
+
+    setInterval(draw, 30);
+</script>

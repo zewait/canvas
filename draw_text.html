@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+</head>
+<body>
+<canvas id="c"></canvas>
+</body>
+</html>
+
+<style type="text/css">
+    *
+    {
+        margin: 0;
+        padding: 0;
+    }
+
+    body
+    {
+        display: block;
+    }
+
+    canvas
+    {
+        display: block;
+    }
+
+</style>
+
+<script style="text/javascript">
+    var text = "How are you?";
+    var c = document.getElementById("c");
+    var ctx = c.getContext("2d");
+
+    function draw()
+    {
+        c.width = window.innerWidth;
+        c.height = window.innerHeight;
+        ctx.fillStyle = "black";
+        ctx.fillRect(0, 0, c.width, c.height);
+        ctx.fillStyle = "white";
+        var font_size = Math.floor(c.width*0.8/text.length);
+        ctx.font = font_size + "px Calibri";
+        ctx.textBaseline = "top";
+        var text_metrics = ctx.measureText(text);
+        var x = Math.floor((c.width-text_metrics.width)/2);
+        var y = Math.floor((c.height-font_size)/2);
+
+        ctx.fillText(text, x, y);
+    }
+    window.onresize = draw;
+    draw();
+</script>
